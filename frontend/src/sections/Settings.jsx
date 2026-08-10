@@ -64,7 +64,7 @@ export default function Settings({ onSaved }) {
       <Panel title={<><Volume2 size={13} /> Voix & Synthèse Vocale</>} testid="settings-voice">
         <label className="text-xs" style={{ color: "var(--text-dim)" }}>Voix (françaises en priorité)</label>
         <select className="field mt-1" value={cfg.voice?.name || ""} onChange={(e) => updVoice({ name: e.target.value })} data-testid="settings-voice-select">
-          <option value="">Voix automatique</option>
+          <option value="">Voix automatique (meilleure voix FR)</option>
           {frVoices.map((v) => <option key={v.name} value={v.name}>🇫🇷 {v.name}</option>)}
           {otherVoices.map((v) => <option key={v.name} value={v.name}>{v.name} ({v.lang})</option>)}
         </select>

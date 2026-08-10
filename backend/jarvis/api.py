@@ -209,6 +209,33 @@ async def preview_path(project: str, path: str = ""):
     return _serve_project_file(project, path)
 
 
+# ---------- download the whole project as a zip ----------
+@router.get("/download/project")
+async def download_project():
+    import os
+    import zipfile
+    import tempfile
+    from pathlib import Path as _P
+    root = _P("/app")
+    excludes = {"node_modules", ".git", ".emergent", "__pycache__", ".cache", ".yarn",
+                "build", "dist", ".next", ".pytest_cache", ".mypy_cache", "venv", ".venv",
+                "test_reports", "tests"}
+    tmp = tempfile.NamedTemporaryFile(suffix=".zip", delete=False)
+    tmp.close()
+    with zipfile.ZipFile(tmp.name, "w", zipfile.ZIP_DEFLATED) as z:
+        for dirpath, dirs, files in os.walk(root):
+            dirs[:] = [d for d in dirs if d not in excludes]
+            for f in files:
+                fp = _P(dirpath) / f
+                try:
+                    if fp.stat().st_size > 20 * 1024 * 1024:
+                        continue
+                    z.write(fp, _P("jarvis") / fp.relative_to(root))
+                except Exception:
+                    pass
+    return FileResponse(tmp.name, filename="jarvis-project.zip", media_type="application/zip")
+
+
 # ---------- gmail ----------
 @router.get("/gmail/status")
 async def gmail_status():

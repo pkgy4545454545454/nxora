@@ -89,6 +89,24 @@ function startMouthDecay() {
   tick();
 }
 
+// Priority list of natural-sounding French voices (best first)
+const FR_VOICE_PRIORITY = [
+  "google français", "google french",
+  "microsoft denise", "microsoft henri", "microsoft paul", "microsoft julie",
+  "amélie", "amelie", "thomas", "audrey", "aurelie", "marie",
+];
+
+export function pickFrenchVoice(voices) {
+  if (!voices || !voices.length) return null;
+  const fr = voices.filter((v) => (v.lang || "").toLowerCase().startsWith("fr"));
+  for (const key of FR_VOICE_PRIORITY) {
+    const match = fr.find((v) => v.name.toLowerCase().includes(key));
+    if (match) return match;
+  }
+  // prefer fr-FR, then any fr, then null
+  return fr.find((v) => (v.lang || "").toLowerCase() === "fr-fr") || fr[0] || null;
+}
+
 export function speak(text, { voiceName, rate = 1, pitch = 1, volume = 1, lang = "fr-FR", onStart, onEnd } = {}) {
   if (typeof window === "undefined" || !window.speechSynthesis || !text) {
     onEnd && onEnd();
@@ -101,12 +119,11 @@ export function speak(text, { voiceName, rate = 1, pitch = 1, volume = 1, lang =
   u.pitch = pitch;
   u.volume = volume;
   const voices = window.speechSynthesis.getVoices();
-  const v = voices.find((x) => x.name === voiceName) || voices.find((x) => x.lang && x.lang.startsWith(lang.split("-")[0]));
+  const v = (voiceName && voices.find((x) => x.name === voiceName)) || pickFrenchVoice(voices);
   if (v) u.voice = v;
   u.onstart = () => { startMouthDecay(); onStart && onStart(); };
   u.onboundary = () => { mouth.level = 0.55 + Math.random() * 0.45; };
   u.onend = () => { cancelAnimationFrame(_mouthRAF); mouth.level = 0; onEnd && onEnd(); };
-  // fallback pulsing in case onboundary is not fired by the browser
   const pulse = setInterval(() => {
     if (!window.speechSynthesis.speaking) { clearInterval(pulse); return; }
     mouth.level = Math.max(mouth.level, 0.4 + Math.random() * 0.5);
