@@ -51,7 +51,10 @@ async def _execute_tool(name: str, args: dict, enabled: set[str], user_message: 
         return {"ok": False, "error": f"Permission refusée pour la catégorie '{meta['category']}'. "
                                       "Active-la dans les Paramètres."}
     try:
-        result = await asyncio.to_thread(meta["func"], **args)
+        if asyncio.iscoroutinefunction(meta["func"]):
+            result = await meta["func"](**args)
+        else:
+            result = await asyncio.to_thread(meta["func"], **args)
     except TypeError as e:
         result = {"ok": False, "error": f"Arguments invalides: {e}"}
     except Exception as e:

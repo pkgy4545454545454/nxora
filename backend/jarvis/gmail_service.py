@@ -11,6 +11,8 @@ SCOPES = [
     "https://www.googleapis.com/auth/gmail.readonly",
     "https://www.googleapis.com/auth/gmail.modify",
     "https://www.googleapis.com/auth/gmail.labels",
+    "https://www.googleapis.com/auth/gmail.compose",
+    "https://www.googleapis.com/auth/gmail.send",
     "openid",
     "https://www.googleapis.com/auth/userinfo.email",
     "https://www.googleapis.com/auth/userinfo.profile",
@@ -131,3 +133,77 @@ async def recent(max_results: int = 8) -> dict:
             "unread": "UNREAD" in msg.get("labelIds", []),
         })
     return {"ok": True, "connected": True, "emails": emails}
+
+
+def _extract_body(payload) -> str:
+    import base64 as _b64
+
+    def decode(data):
+        return _b64.urlsafe_b64decode(data.encode("utf-8")).decode("utf-8", errors="replace")
+
+    if payload.get("body", {}).get("data"):
+        return decode(payload["body"]["data"])
+    for part in payload.get("parts", []) or []:
+        mime = part.get("mimeType", "")
+        if mime == "text/plain" and part.get("body", {}).get("data"):
+            return decode(part["body"]["data"])
+        nested = _extract_body(part)
+        if nested:
+            return nested
+    return ""
+
+
+async def search(query: str, max_results: int = 5) -> dict:
+    svc = await _service()
+    if not svc:
+        return {"ok": False, "connected": False, "emails": []}
+    listing = svc.users().messages().list(userId="me", q=query, maxResults=max_results).execute()
+    emails = []
+    for m in listing.get("messages", []):
+        msg = svc.users().messages().get(userId="me", id=m["id"], format="full").execute()
+        payload = msg.get("payload", {})
+        emails.append({
+            "id": m["id"], "from": _header(payload, "From"),
+            "subject": _header(payload, "Subject") or "(sans objet)",
+            "date": _header(payload, "Date"), "snippet": msg.get("snippet", ""),
+            "body": _extract_body(payload)[:4000],
+        })
+    return {"ok": True, "connected": True, "emails": emails, "count": len(emails)}
+
+
+async def get_message(message_id: str) -> dict:
+    svc = await _service()
+    if not svc:
+        return {"ok": False, "connected": False}
+    msg = svc.users().messages().get(userId="me", id=message_id, format="full").execute()
+    payload = msg.get("payload", {})
+    return {"ok": True, "id": message_id, "from": _header(payload, "From"),
+            "subject": _header(payload, "Subject"), "date": _header(payload, "Date"),
+            "body": _extract_body(payload)[:6000], "snippet": msg.get("snippet", "")}
+
+
+def _raw_message(to: str, subject: str, body: str) -> str:
+    import base64 as _b64
+    from email.mime.text import MIMEText
+    msg = MIMEText(body, _charset="utf-8")
+    msg["to"] = to
+    msg["subject"] = subject
+    return _b64.urlsafe_b64encode(msg.as_bytes()).decode("utf-8")
+
+
+async def create_draft(to: str, subject: str, body: str) -> dict:
+    svc = await _service()
+    if not svc:
+        return {"ok": False, "connected": False, "error": "Gmail non connecté."}
+    draft = svc.users().drafts().create(
+        userId="me", body={"message": {"raw": _raw_message(to, subject, body)}}).execute()
+    return {"ok": True, "draft_id": draft.get("id"), "to": to, "subject": subject}
+
+
+async def send_message(to: str, subject: str, body: str) -> dict:
+    svc = await _service()
+    if not svc:
+        return {"ok": False, "connected": False, "error": "Gmail non connecté."}
+    sent = svc.users().messages().send(
+        userId="me", body={"raw": _raw_message(to, subject, body)}).execute()
+    return {"ok": True, "message_id": sent.get("id"), "to": to, "subject": subject}

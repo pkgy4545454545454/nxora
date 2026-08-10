@@ -1,8 +1,9 @@
 """Tool registry: aggregates all tool modules."""
 from jarvis.tools import (filesystem, applications, browser, terminal,
-                          development, cybersecurity, system_info)
+                          development, cybersecurity, system_info, gmail_tools)
 
-_MODULES = [filesystem, applications, browser, terminal, development, cybersecurity, system_info]
+_MODULES = [filesystem, applications, browser, terminal, development,
+            cybersecurity, system_info, gmail_tools]
 
 # name -> meta dict {name, category, func, description, input_schema}
 ALL_TOOLS: dict[str, dict] = {}

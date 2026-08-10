@@ -1,6 +1,7 @@
 import React, { useRef, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { mouth } from "@/lib/speech";
 
 const STATE_CFG = {
   idle: { spin: 0.12, pulse: 0.04, glow: 1.0, ring: 0.15 },
@@ -14,10 +15,10 @@ const STATE_CFG = {
 function headPoints(count) {
   const pos = new Float32Array(count * 3);
   const col = new Float32Array(count * 3);
+  const mask = new Float32Array(count); // 0 none, +1 upper lip, -1 lower lip
   const blue = new THREE.Color("#22aaff");
   const red = new THREE.Color("#ff3b52");
   for (let i = 0; i < count; i++) {
-    // sample on an ellipsoid (head shape)
     const u = Math.random();
     const v = Math.random();
     const theta = u * Math.PI * 2;
@@ -25,34 +26,36 @@ function headPoints(count) {
     let x = Math.sin(phi) * Math.cos(theta);
     let y = Math.cos(phi);
     let z = Math.sin(phi) * Math.sin(theta);
-    // head proportions
     x *= 1.0;
     y *= 1.32;
     z *= 0.92;
-    // jaw taper (narrow the bottom-front)
     if (y < -0.2) x *= 0.82 + 0.18 * (y + 1);
-    // push a bit of noise for organic feel
     const n = 0.03;
     x += (Math.random() - 0.5) * n;
     y += (Math.random() - 0.5) * n;
     z += (Math.random() - 0.5) * n;
+    const fy = y + 0.1;
     pos[i * 3] = x;
-    pos[i * 3 + 1] = y + 0.1;
+    pos[i * 3 + 1] = fy;
     pos[i * 3 + 2] = z;
+    // mouth region: lower-front of the face
+    if (z > 0.45 && Math.abs(x) < 0.4 && fy > -0.5 && fy < -0.05) {
+      mask[i] = fy >= -0.28 ? 1 : -1;
+    }
     const c = x < 0 ? blue : red;
     const shade = 0.55 + 0.45 * Math.random();
     col[i * 3] = c.r * shade;
     col[i * 3 + 1] = c.g * shade;
     col[i * 3 + 2] = c.b * shade;
   }
-  return { pos, col };
+  return { pos, col, mask };
 }
 
 function Head({ stateName }) {
   const ref = useRef();
   const matRef = useRef();
   const count = 6500;
-  const { pos, col } = useMemo(() => headPoints(count), []);
+  const { pos, col, mask } = useMemo(() => headPoints(count), []);
   const basePos = useMemo(() => pos.slice(), [pos]);
   const cfg = STATE_CFG[stateName] || STATE_CFG.idle;
 
@@ -62,15 +65,16 @@ function Head({ stateName }) {
     const t = state.clock.elapsedTime;
     const arr = ref.current.geometry.attributes.position.array;
     const amp = cfg.pulse;
+    const lip = mouth.level; // 0..1 lip-sync
     for (let i = 0; i < count; i++) {
       const ix = i * 3;
       const wobble = 1 + amp * Math.sin(t * 2.2 + basePos[ix + 1] * 4 + i * 0.05);
       arr[ix] = basePos[ix] * wobble;
-      arr[ix + 1] = basePos[ix + 1] * wobble;
+      arr[ix + 1] = basePos[ix + 1] * wobble + (mask[i] !== 0 ? mask[i] * lip * 0.22 : 0);
       arr[ix + 2] = basePos[ix + 2] * wobble;
     }
     ref.current.geometry.attributes.position.needsUpdate = true;
-    if (matRef.current) matRef.current.opacity = 0.85;
+    if (matRef.current) matRef.current.opacity = 0.85 + lip * 0.15;
   });
 
   return (

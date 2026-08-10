@@ -25,6 +25,13 @@ Assistant vocal personnel type Iron Man : "Je parle → Claude comprend → l'ag
 - Paramètres : clé API, modèle, mot d'activation, voix (test), permissions.
 - Tests E2E : backend 15/15, frontend 100% des flux couverts.
 
+## Itération 2 (2026-08-10)
+- Synchro labiale : la bouche de l'avatar 3D s'anime avec l'amplitude de la voix (`speech.js` expose `mouth.level`, lu par `Avatar3D.jsx`).
+- Emails intelligents : outils agent `gmail_recent`, `gmail_search`, `gmail_read`, `gmail_draft`, `gmail_send` (envoi avec confirmation obligatoire). Scopes gmail.compose + gmail.send ajoutés.
+- Générateur de sites : `create_project` + `open_in_editor` (VS Code) + `start_dev_server` + `open_url`; le prompt enchaîne automatiquement création → éditeur → serveur → navigateur; modifications ciblées via `write_file`.
+- Agent : support des outils asynchrones.
+- 31 outils enregistrés. Testés au niveau fonction (create_project, open_in_editor fallback, gmail confirmation) + compilation OK. Vérification E2E des flux agent en attente des crédits Anthropic.
+
 ## Limites connues
 - Réponses Claude bloquées : le compte Anthropic du user a un **solde de crédits insuffisant** (clé valide). Ajouter des crédits sur console.anthropic.com.
 - WhatsApp : données de démonstration (MOCKED) — pas d'API officielle de lecture des messages perso.

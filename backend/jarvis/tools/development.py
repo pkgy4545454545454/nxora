@@ -68,6 +68,22 @@ def stop_dev_server(project: str):
     return {"ok": False, "error": "Aucun serveur en cours pour ce projet"}
 
 
+def open_in_editor(project: str):
+    """Open the project folder in VS Code (code <path>)."""
+    import shutil
+    root = _project_dir(project)
+    if not root.exists():
+        return {"ok": False, "error": "Projet introuvable"}
+    code = shutil.which("code") or shutil.which("code.cmd")
+    if not code:
+        return {"ok": False, "error": "VS Code (commande 'code') introuvable sur ce système."}
+    try:
+        subprocess.Popen([code, str(root)])
+        return {"ok": True, "opened": str(root)}
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
+
+
 REGISTRY = [
     {"name": "create_project", "category": "normal", "func": create_project,
      "description": "Créer un projet complet (site web, app...) dans l'espace de travail en écrivant plusieurs fichiers. Fournir 'files' = liste d'objets {path, content}. Écris toi-même le code (HTML/CSS/JS/React...).",
@@ -91,5 +107,8 @@ REGISTRY = [
          "required": ["project"]}},
     {"name": "stop_dev_server", "category": "normal", "func": stop_dev_server,
      "description": "Arrêter le serveur de développement d'un projet.",
+     "input_schema": {"type": "object", "properties": {"project": {"type": "string"}}, "required": ["project"]}},
+    {"name": "open_in_editor", "category": "normal", "func": open_in_editor,
+     "description": "Ouvrir le dossier d'un projet dans Visual Studio Code.",
      "input_schema": {"type": "object", "properties": {"project": {"type": "string"}}, "required": ["project"]}},
 ]
