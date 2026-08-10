@@ -1,0 +1,30 @@
+{
+  "summary": "First-run E2E test of JARVIS AI. Backend: 15/15 pytest cases pass against all listed /api endpoints (stats, commands, notes CRUD, logs, config sanitization, devices, applications, cyber tools, gmail status configured, gmail OAuth 307 redirect to accounts.google.com, whatsapp mocked, chat billing path). Frontend: dashboard loads with every panel (Statistiques Système with CPU/RAM/GPU/Disque, Statistiques IA, Réseau, Dernières Commandes, Mes Emails Récents, WhatsApp, Cybersécurité, Code & Pense-bête, top clock, SYSTEM ONLINE). All left-sidebar nav testids render their view without crashing. Notes CRUD works via UI (create + delete propagates to backend). Voice console send-btn -> POST /api/chat returns the expected friendly billing message ('Ma clé Claude fonctionne, mais le solde de crédits ... Anthropic ...') shown in conversation-feed. Cyber input enables scan buttons. Settings save persists wake_word, model, key state and shows 'ENREGISTRÉ ✓' confirmation; GET /api/config exposes anthropic_api_key_set=true without raw key. 3D avatar renders (WebGL available).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_jarvis_api.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Cyber scan button testids are cyber-scan-nmap / cyber-scan-nmap_full / cyber-scan-nmap_vuln / cyber-scan-dirb. Review request mentions 'cyber-scan-nmap etc.' — naming works but consider aliasing to more readable ids (cyber-scan-ports, cyber-scan-vuln) for testability.",
+    "backend/agent.py: broad Exception catch swallows non-billing errors as generic 500-style reply; consider distinguishing anthropic.APIStatusError subtypes (RateLimitError, APIConnectionError) for better UX.",
+    "api.py PUT /api/config: patch = {k:v for k,v in ... if v is not None} will not allow clearing lists/dicts intentionally (e.g., empty allowed_folders). Minor.",
+    "GOOGLE_CLIENT_SECRET is committed in backend/.env. Consider secret rotation before publishing repo."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_jarvis_api.py"
+  ],
+  "success_rate": {"backend": "100% (15/15)", "frontend": "100% of covered flows"},
+  "test_credentials": "N/A (single-user, no login)",
+  "seed_data_creation": "Test note (TEST_UI_Note) and TEST_sess conversation created & cleaned during tests.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Anthropic account is billing-blocked; /api/chat returns {ok:false, billing:true, reply:<French billing message>}. Do NOT flag as bug. Gmail OAuth is configured but no user token — /api/gmail/status returns configured:true, connected:false. WhatsApp is intentionally mocked. Backend has hot-reload; supervisor restart only for .env changes.",
+  "rca of the issue": "No blocking issues found."
+}
