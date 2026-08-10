@@ -101,8 +101,8 @@
         .cta-button {
             display: inline-block;
             padding: 1rem 3rem;
-            background: #d4af37;
-            color: #0a0a0a;
+            background: #c41e3a;
+            color: #f5f5f5;
             text-decoration: none;
             font-size: 1.2rem;
             font-weight: bold;
@@ -113,9 +113,9 @@
         }
 
         .cta-button:hover {
-            background: #f5f5f5;
+            background: #a01729;
             transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.5);
+            box-shadow: 0 10px 30px rgba(196, 30, 58, 0.5);
         }
 
         /* Menu Section */
@@ -201,6 +201,67 @@
             line-height: 1.8;
         }
 
+        /* Testimonials Section */
+        .testimonials {
+            padding: 6rem 2rem;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+        }
+
+        .testimonials-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 3rem;
+        }
+
+        .testimonial {
+            background: #1a1a1a;
+            padding: 2.5rem;
+            border-radius: 15px;
+            border: 2px solid #d4af37;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .testimonial:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(212, 175, 55, 0.3);
+        }
+
+        .testimonial::before {
+            content: '"';
+            position: absolute;
+            top: -20px;
+            left: 20px;
+            font-size: 6rem;
+            color: #d4af37;
+            opacity: 0.3;
+            font-family: Georgia, serif;
+        }
+
+        .testimonial-text {
+            font-size: 1.1rem;
+            color: #c0c0c0;
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+            font-style: italic;
+        }
+
+        .testimonial-author {
+            text-align: right;
+            color: #d4af37;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .testimonial-rating {
+            text-align: right;
+            color: #d4af37;
+            font-size: 1.5rem;
+            margin-top: 0.5rem;
+        }
+
         /* Contact Section */
         .contact {
             padding: 6rem 2rem;
@@ -281,7 +342,7 @@
                 font-size: 2rem;
             }
 
-            .menu-container {
+            .menu-container, .testimonials-container {
                 grid-template-columns: 1fr;
             }
         }
@@ -295,6 +356,7 @@
             <ul>
                 <li><a href="#hero">Accueil</a></li>
                 <li><a href="#menu">Menu</a></li>
+                <li><a href="#avis">Avis</a></li>
                 <li><a href="#contact">Contact</a></li>
             </ul>
         </nav>
@@ -314,47 +376,61 @@
         <h2 class="section-title">Notre Menu</h2>
         <div class="menu-container">
             <div class="menu-item">
-                <h3>🍝 Pasta Carbonara</h3>
-                <div class="price">18€</div>
-                <p>Pâtes fraîches maison, guanciale croustillant, œuf fermier, pecorino romano et poivre noir fraîchement moulu. Une recette traditionnelle romaine authentique.</p>
+                <h3>Pasta Carbonara</h3>
+                <p class="price">16€</p>
+                <p>Spaghetti frais aux œufs, guanciale croustillant, pecorino romano et poivre noir fraîchement moulu. Une recette traditionnelle de Rome.</p>
             </div>
-
             <div class="menu-item">
-                <h3>🍕 Pizza Margherita</h3>
-                <div class="price">15€</div>
-                <p>Pâte artisanale cuite au feu de bois, sauce tomate San Marzano, mozzarella di bufala, basilic frais et huile d'olive extra vierge. La reine des pizzas napolitaines.</p>
+                <h3>Pizza Margherita</h3>
+                <p class="price">14€</p>
+                <p>Notre pizza signature : pâte artisanale à la napolitaine, sauce tomate San Marzano, mozzarella di bufala, basilic frais et huile d'olive extra vierge.</p>
             </div>
-
             <div class="menu-item">
-                <h3>🍰 Tiramisu</h3>
-                <div class="price">9€</div>
-                <p>Biscuits à la cuillère imbibés de café italien, crème mascarpone onctueuse et cacao amer. Le dessert emblématique préparé selon la recette ancestrale.</p>
+                <h3>Tiramisu</h3>
+                <p class="price">8€</p>
+                <p>Le dessert italien par excellence : biscuits savoiardi imbibés de café espresso, crème mascarpone onctueuse et poudre de cacao amer.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="avis" class="testimonials">
+        <h2 class="section-title">Avis Clients</h2>
+        <div class="testimonials-container">
+            <div class="testimonial">
+                <p class="testimonial-text">Une expérience culinaire exceptionnelle ! Les pâtes carbonara étaient divines, exactement comme celles que j'ai goûtées à Rome. L'ambiance chaleureuse et le service impeccable ont rendu notre soirée inoubliable.</p>
+                <div class="testimonial-author">— Sophie Martin</div>
+                <div class="testimonial-rating">★★★★★</div>
+            </div>
+            <div class="testimonial">
+                <p class="testimonial-text">Bella Napoli est devenu mon restaurant italien préféré ! La pizza Margherita est tout simplement parfaite, avec une pâte fine et croustillante. Le tiramisu maison est un pur délice. Je recommande vivement !</p>
+                <div class="testimonial-author">— Marc Dubois</div>
+                <div class="testimonial-rating">★★★★★</div>
             </div>
         </div>
     </section>
 
     <!-- Contact Section -->
     <section id="contact" class="contact">
-        <h2 class="section-title">Contact</h2>
+        <h2 class="section-title">Contactez-nous</h2>
         <div class="contact-container">
             <div class="contact-info">
-                <h3>Venez nous rendre visite</h3>
+                <h3>Informations</h3>
                 <div class="contact-item">
                     <strong>📍 Adresse</strong>
-                    15 Rue de la Dolce Vita<br>
-                    75001 Paris, France
+                    25 Rue de la Gastronomie, 75001 Paris
                 </div>
                 <div class="contact-item">
                     <strong>📞 Téléphone</strong>
-                    +33 1 42 00 00 00
+                    01 42 33 44 55
                 </div>
                 <div class="contact-item">
-                    <strong>📧 Email</strong>
+                    <strong>✉️ Email</strong>
                     contact@bellanapoli.fr
                 </div>
                 <div class="contact-item">
                     <strong>🕐 Horaires</strong>
-                    Mardi - Dimanche : 12h - 14h30 & 19h - 23h<br>
+                    Mar-Dim : 12h-14h30 & 19h-22h30<br>
                     Fermé le lundi
                 </div>
             </div>
@@ -363,7 +439,7 @@
 
     <!-- Footer -->
     <footer>
-        <p>&copy; 2024 Bella Napoli - Tous droits réservés | Fait avec ❤️ et passion</p>
+        <p>&copy; 2024 Bella Napoli - Tous droits réservés</p>
     </footer>
 </body>
 </html>

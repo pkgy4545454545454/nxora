@@ -176,9 +176,12 @@ async def list_projects():
     projects = []
     if WORKSPACE_DIR.exists():
         dirs = [p for p in WORKSPACE_DIR.iterdir() if p.is_dir()]
-        for p in sorted(dirs, key=lambda x: x.stat().st_mtime, reverse=True):
-            projects.append({"name": p.name, "mtime": int(p.stat().st_mtime),
+        for p in dirs:
+            files = [f for f in p.rglob("*") if f.is_file()]
+            latest = max((int(f.stat().st_mtime) for f in files), default=int(p.stat().st_mtime))
+            projects.append({"name": p.name, "mtime": latest,
                              "has_index": (p / "index.html").exists()})
+        projects.sort(key=lambda x: x["mtime"], reverse=True)
     return {"projects": projects}
 
 

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { api } from "@/lib/api";
-import { useSpeech, speak, stopSpeaking } from "@/lib/speech";
+import { useSpeech, speak, stopSpeaking, playWake } from "@/lib/speech";
 
 const SESSION_KEY = "jarvis_session";
 
@@ -24,6 +24,15 @@ export function useAssistant(config) {
   const [armed, setArmed] = useState(false);
   const armedRef = useRef(false);
   const armTimerRef = useRef(null);
+  const [wakeFlash, setWakeFlash] = useState(false);
+  const wakeTimerRef = useRef(null);
+
+  const triggerWake = useCallback(() => {
+    playWake();
+    setWakeFlash(true);
+    clearTimeout(wakeTimerRef.current);
+    wakeTimerRef.current = setTimeout(() => setWakeFlash(false), 1000);
+  }, []);
 
   const arm = useCallback(() => {
     armedRef.current = true;
@@ -92,6 +101,7 @@ export function useAssistant(config) {
     if (continuousRef.current) {
       // Hands-free: ignore ambient speech until the wake word, then keep a follow-up window open
       if (!armedRef.current && !hasWake) return;
+      if (hasWake) triggerWake();
       let t = transcript;
       if (hasWake) t = t.replace(new RegExp(wake, "ig"), "").replace(/^[\s,.:!?-]+/, "").trim();
       if (!t) { arm(); return; } // user only said the wake word → open the listening window
@@ -100,7 +110,7 @@ export function useAssistant(config) {
       const t = transcript.trim();
       if (t) send(t);
     }
-  }, [config, send, arm]);
+  }, [config, send, arm, triggerWake]);
 
   const startListening = useCallback(() => {
     if (!supported) return;
@@ -133,7 +143,7 @@ export function useAssistant(config) {
   }, [sessionId]);
 
   return {
-    sessionId, messages, state, currentTool, interim, listening, continuous, armed,
+    sessionId, messages, state, currentTool, interim, listening, continuous, armed, wakeFlash,
     supported, send, toggleContinuous, startListening, stopAll, clear, setMessages,
   };
 }

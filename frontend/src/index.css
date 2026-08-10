@@ -166,6 +166,19 @@ body {
 .fade-in { animation: fadeIn .5s ease both; }
 @keyframes fadeIn { from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none} }
 
+/* wake-word activation halo */
+.wake-halo {
+  position: absolute; top: 50%; left: 50%; width: 360px; height: 360px;
+  transform: translate(-50%, -50%); border-radius: 50%; pointer-events: none;
+  border: 2px solid rgba(35,168,255,0); opacity: 0; transition: opacity .35s ease; z-index: 1;
+}
+.wake-halo.armed { border-color: rgba(35,168,255,.35); box-shadow: 0 0 46px rgba(35,168,255,.28); opacity: 1; }
+.wake-halo.flash { animation: wakeflash 1s ease-out; }
+@keyframes wakeflash {
+  0% { opacity: 1; border-color: rgba(35,168,255,.95); box-shadow: 0 0 90px rgba(35,168,255,.75); transform: translate(-50%,-50%) scale(.82); }
+  100% { opacity: 0; transform: translate(-50%,-50%) scale(1.25); }
+}
+
 input, textarea, select { font-family: 'Rajdhani', sans-serif; }
 .field {
   background: rgba(6,12,22,0.8); border: 1px solid var(--panel-border);

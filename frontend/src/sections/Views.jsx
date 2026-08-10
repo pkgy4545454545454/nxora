@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Panel, MiniBar } from "@/components/Hud";
-import { api } from "@/lib/api";
-import { AppWindow, FolderSearch, Globe, ShieldAlert, HardDrive, Usb, ScrollText, Play } from "lucide-react";
+import { api, API } from "@/lib/api";
+import { AppWindow, FolderSearch, Globe, ShieldAlert, HardDrive, Usb, ScrollText, Play, Maximize2, Code2 } from "lucide-react";
 
 export function ApplicationsView({ assistant }) {
   const [apps, setApps] = useState(null);
@@ -81,6 +81,45 @@ export function SecurityView({ assistant }) {
         </div>
       </Panel>
     </div>
+  );
+}
+
+export function ProjectsView({ assistant }) {
+  const [projects, setProjects] = useState([]);
+  const load = () => api.projects().then((d) => setProjects(d.projects || [])).catch(() => {});
+  useEffect(() => { load(); const id = setInterval(load, 5000); return () => clearInterval(id); }, []);
+  return (
+    <Panel title={<><Globe size={13} /> Galerie de Projets</>} testid="view-projects">
+      {!projects.length && <div style={{ color: "var(--text-dim)" }}>Aucun projet encore. Demande à JARVIS : « crée-moi un site pour un restaurant ».</div>}
+      <div className="grid grid-cols-2 gap-3">
+        {projects.map((p) => {
+          const src = `${API}/preview/${encodeURIComponent(p.name)}/`;
+          return (
+            <div key={p.name} className="panel" style={{ padding: 10 }} data-testid={`project-${p.name}`}>
+              <div style={{ borderRadius: 6, overflow: "hidden", border: "1px solid var(--panel-border)", background: "#fff", height: 150, position: "relative" }}>
+                {p.has_index ? (
+                  <iframe key={`${p.name}-${p.mtime}`} src={src} title={p.name} scrolling="no"
+                    style={{ width: "200%", height: "300px", border: "none", transform: "scale(0.5)", transformOrigin: "top left", pointerEvents: "none" }} />
+                ) : (
+                  <div className="flex items-center justify-center h-full" style={{ color: "#333" }}>Pas d'aperçu</div>
+                )}
+              </div>
+              <div className="flex items-center justify-between mt-2">
+                <span className="font-display" style={{ fontSize: 12, color: "var(--cyan-bright)" }}>{p.name}</span>
+              </div>
+              <div className="flex gap-2 mt-2">
+                <a className="btn text-xs flex-1 text-center" href={src} target="_blank" rel="noreferrer" data-testid={`project-open-${p.name}`}>
+                  <Maximize2 size={12} className="inline mr-1" /> Ouvrir
+                </a>
+                <button className="btn text-xs flex-1" onClick={() => assistant.send(`Ouvre le projet ${p.name} dans VS Code`)} data-testid={`project-edit-${p.name}`}>
+                  <Code2 size={12} className="inline mr-1" /> Éditer
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </Panel>
   );
 }
 

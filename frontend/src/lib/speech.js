@@ -119,3 +119,23 @@ export function stopSpeaking() {
   cancelAnimationFrame(_mouthRAF);
   mouth.level = 0;
 }
+
+// Short rising "wake" chime played when JARVIS hears its wake word
+let _actx = null;
+export function playWake() {
+  try {
+    _actx = _actx || new (window.AudioContext || window.webkitAudioContext)();
+    if (_actx.state === "suspended") _actx.resume();
+    const t = _actx.currentTime;
+    const o = _actx.createOscillator();
+    const g = _actx.createGain();
+    o.connect(g); g.connect(_actx.destination);
+    o.type = "sine";
+    o.frequency.setValueAtTime(660, t);
+    o.frequency.exponentialRampToValueAtTime(1320, t + 0.12);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.25, t + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.28);
+    o.start(t); o.stop(t + 0.3);
+  } catch (e) { /* ignore */ }
+}
