@@ -65,16 +65,25 @@ function VoiceConsole({ assistant }) {
   const [text, setText] = useState("");
   const submit = (e) => { e.preventDefault(); if (text.trim()) { assistant.send(text.trim()); setText(""); } };
   const isListening = assistant.listening || assistant.continuous;
+  const placeholder = assistant.interim
+    || (assistant.continuous
+        ? (assistant.armed ? "JARVIS vous écoute… dites votre commande" : "Mode mains-libres : dites « JARVIS »…")
+        : "Parlez ou écrivez à JARVIS…");
   return (
     <form className="voice-bar mx-6 mb-4" onSubmit={submit} data-testid="voice-console">
       <div style={{ minWidth: 110 }}>
         <div className="font-display" style={{ fontSize: 11, letterSpacing: 2, color: STATE_COLOR[assistant.state] }}>
           {STATE_LABEL[assistant.state]}
         </div>
+        {assistant.continuous && (
+          <div className="font-mono" style={{ fontSize: 9, color: assistant.armed ? "var(--green)" : "var(--text-dim)" }}>
+            {assistant.armed ? "● MAINS-LIBRES ACTIF" : "○ EN ATTENTE « JARVIS »"}
+          </div>
+        )}
         {assistant.currentTool && <div className="font-mono" style={{ fontSize: 10, color: "var(--text-dim)" }}>⚙ {assistant.currentTool}</div>}
       </div>
       <input className="flex-1" style={{ background: "transparent", border: "none", outline: "none", color: "var(--text)", fontSize: 16 }}
-        placeholder={assistant.interim || "Parlez ou écrivez à JARVIS…"} value={text}
+        placeholder={placeholder} value={text}
         onChange={(e) => setText(e.target.value)} data-testid="voice-input" />
       <div className="wave" style={{ opacity: isListening ? 1 : 0.25 }}>
         {[0, 1, 2, 3, 4, 5, 6].map((i) => <span key={i} style={{ animationDelay: `${i * 0.1}s` }} />)}
@@ -83,7 +92,7 @@ function VoiceConsole({ assistant }) {
         <Send size={18} />
       </button>
       <button type="button" className={`mic-btn ${isListening ? "active" : ""}`}
-        onClick={assistant.toggleContinuous} data-testid="mic-btn" title="Activer/désactiver le micro">
+        onClick={assistant.toggleContinuous} data-testid="mic-btn" title="Mode vocal mains-libres (mot d'activation)">
         {isListening ? <Radio size={20} /> : <Mic size={20} />}
       </button>
     </form>

@@ -1,0 +1,7 @@
+Cible: pwdevelopment.ch
+Profil: nmap
+Commande: nmap -F pwdevelopment.ch
+
+Starting Nmap 7.93 ( https://nmap.org ) at 2026-08-10 20:50 UTC
+
+Couldn't open a raw socket. Error: Operation not permitted (1)

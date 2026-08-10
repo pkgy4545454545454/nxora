@@ -3,13 +3,14 @@ import os
 import uuid
 from datetime import datetime, timezone
 
-from fastapi import APIRouter
-from fastapi.responses import RedirectResponse
+from fastapi import APIRouter, HTTPException
+from fastapi.responses import RedirectResponse, FileResponse
 from pydantic import BaseModel, Field
 
-from jarvis.store import db, get_config, update_config, log_action, now_iso
+from jarvis.store import db, get_config, update_config, log_action, now_iso, WORKSPACE_DIR
 from jarvis.agent import run_agent
 from jarvis.tools import ALL_TOOLS
+from jarvis.tools.development import _project_dir
 from jarvis.tools.system_info import get_system_stats, list_usb_devices
 from jarvis.tools.cybersecurity import list_security_tools
 from jarvis.tools.applications import detect_applications
@@ -167,6 +168,42 @@ async def applications():
 @router.get("/cyber/tools")
 async def cyber_tools():
     return list_security_tools()
+
+
+# ---------- generated projects preview ----------
+@router.get("/projects")
+async def list_projects():
+    projects = []
+    if WORKSPACE_DIR.exists():
+        dirs = [p for p in WORKSPACE_DIR.iterdir() if p.is_dir()]
+        for p in sorted(dirs, key=lambda x: x.stat().st_mtime, reverse=True):
+            projects.append({"name": p.name, "mtime": int(p.stat().st_mtime),
+                             "has_index": (p / "index.html").exists()})
+    return {"projects": projects}
+
+
+def _serve_project_file(project: str, path: str):
+    root = _project_dir(project).resolve()
+    if WORKSPACE_DIR.resolve() not in root.parents and root != WORKSPACE_DIR.resolve():
+        raise HTTPException(status_code=400, detail="invalid project")
+    target = (root / (path or "index.html")).resolve()
+    if root not in target.parents and target != root:
+        raise HTTPException(status_code=400, detail="invalid path")
+    if target.is_dir():
+        target = target / "index.html"
+    if not target.exists() or not target.is_file():
+        raise HTTPException(status_code=404, detail="not found")
+    return FileResponse(str(target))
+
+
+@router.get("/preview/{project}")
+async def preview_root(project: str):
+    return _serve_project_file(project, "")
+
+
+@router.get("/preview/{project}/{path:path}")
+async def preview_path(project: str, path: str = ""):
+    return _serve_project_file(project, path)
 
 
 # ---------- gmail ----------

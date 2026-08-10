@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { Panel, CircularGauge, MiniBar, Sparkline } from "@/components/Hud";
-import { api, gmailLoginUrl } from "@/lib/api";
+import { api, gmailLoginUrl, API } from "@/lib/api";
 import {
   Cpu, HardDrive, Activity, Mail, MessageCircle, Terminal, ShieldAlert,
   StickyNote, Trash2, Plus, Play, Zap, Brain, Clock, RefreshCw, Wifi,
+  Globe, Maximize2,
 } from "lucide-react";
 
 function usePoll(fn, deps, interval) {
@@ -90,6 +91,8 @@ export function DashboardRight({ assistant }) {
 
   return (
     <div className="flex flex-col gap-4">
+      <SitePreviewPanel />
+
       <Panel title={<><Mail size={13} /> Mes Emails Récents</>} testid="panel-emails"
         right={<button className="text-xs" onClick={refreshGmail} style={{ color: "var(--text-dim)" }}><RefreshCw size={13} /></button>}>
         {gmail?.connected ? (
@@ -160,6 +163,49 @@ export function DashboardRight({ assistant }) {
 
       <NotesPanel />
     </div>
+  );
+}
+
+function SitePreviewPanel() {
+  const [projects, setProjects] = useState([]);
+  const [sel, setSel] = useState("");
+  const [mtime, setMtime] = useState(0);
+
+  const load = useCallback(() => {
+    api.projects().then((d) => {
+      const list = (d.projects || []).filter((p) => p.has_index);
+      setProjects(list);
+      setSel((cur) => {
+        if (cur && list.some((p) => p.name === cur)) {
+          const m = list.find((p) => p.name === cur);
+          setMtime(m.mtime);
+          return cur;
+        }
+        if (list.length) { setMtime(list[0].mtime); return list[0].name; }
+        return "";
+      });
+    }).catch(() => {});
+  }, []);
+
+  useEffect(() => { load(); const id = setInterval(load, 4000); return () => clearInterval(id); }, [load]);
+
+  if (!projects.length) return null;
+  const src = `${API}/preview/${encodeURIComponent(sel)}/`;
+
+  return (
+    <Panel title={<><Globe size={13} /> Aperçu du Site</>} testid="panel-preview"
+      right={<a href={src} target="_blank" rel="noreferrer" style={{ color: "var(--cyan-bright)" }} data-testid="preview-fullscreen"><Maximize2 size={14} /></a>}>
+      <select className="field mb-2" value={sel} onChange={(e) => setSel(e.target.value)} data-testid="preview-select">
+        {projects.map((p) => <option key={p.name} value={p.name}>{p.name}</option>)}
+      </select>
+      <div style={{ borderRadius: 8, overflow: "hidden", border: "1px solid var(--panel-border)", background: "#fff" }}>
+        <iframe key={`${sel}-${mtime}`} src={src} title="preview" data-testid="preview-iframe"
+          style={{ width: "100%", height: 260, border: "none", display: "block" }} />
+      </div>
+      <div style={{ fontSize: 10, color: "var(--text-dim)", marginTop: 6 }}>
+        Se rafraîchit automatiquement quand JARVIS modifie le projet.
+      </div>
+    </Panel>
   );
 }
 

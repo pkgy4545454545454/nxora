@@ -32,6 +32,10 @@ Assistant vocal personnel type Iron Man : "Je parle → Claude comprend → l'ag
 - Agent : support des outils asynchrones.
 - 31 outils enregistrés. Testés au niveau fonction (create_project, open_in_editor fallback, gmail confirmation) + compilation OK. Vérification E2E des flux agent en attente des crédits Anthropic.
 
+## Itération 3 (2026-08-10)
+- Aperçu Intégré : endpoints backend `GET /api/projects` + `GET /api/preview/{project}/{path}` (sert les fichiers du workspace, garde-fou anti-traversal). Panneau `SitePreviewPanel` (iframe) dans le dashboard, auto-détection du projet le plus récent, rafraîchissement auto (clé mtime), lien plein écran. Vérifié E2E : « crée un site restaurant » → site Bella Napoli affiché dans l'iframe.
+- Micro mains-libres : mode continu déclenché par le mot « JARVIS », avec fenêtre de suivi de 15 s (follow-up sans redire le mot), indicateur d'état (EN ATTENTE / MAINS-LIBRES ACTIF). Le prompt n'ouvre plus d'onglet localhost (aperçu intégré).
+
 ## Limites connues
 - Réponses Claude bloquées : le compte Anthropic du user a un **solde de crédits insuffisant** (clé valide). Ajouter des crédits sur console.anthropic.com.
 - WhatsApp : données de démonstration (MOCKED) — pas d'API officielle de lecture des messages perso.

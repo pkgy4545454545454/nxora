@@ -21,6 +21,16 @@ export function useAssistant(config) {
   const [continuous, setContinuous] = useState(false);
   const continuousRef = useRef(false);
   const busyRef = useRef(false);
+  const [armed, setArmed] = useState(false);
+  const armedRef = useRef(false);
+  const armTimerRef = useRef(null);
+
+  const arm = useCallback(() => {
+    armedRef.current = true;
+    setArmed(true);
+    clearTimeout(armTimerRef.current);
+    armTimerRef.current = setTimeout(() => { armedRef.current = false; setArmed(false); }, 15000);
+  }, []);
 
   const voiceCfg = config?.voice || {};
   const { supported, listening, interim, start, stop } = useSpeech({
@@ -62,7 +72,7 @@ export function useAssistant(config) {
           setState("idle");
           setCurrentTool("");
           busyRef.current = false;
-          if (continuousRef.current) startListening();
+          if (continuousRef.current) { arm(); startListening(); }
         },
       });
     } catch (e) {
@@ -77,14 +87,20 @@ export function useAssistant(config) {
   const onFinal = useCallback((transcript) => {
     if (busyRef.current) return;
     const wake = (config?.wake_word || "jarvis").toLowerCase();
-    let t = transcript;
-    const low = t.toLowerCase();
-    if (low.includes(wake)) {
-      t = t.replace(new RegExp(wake, "ig"), "").trim();
-      if (!t) return;
+    const low = transcript.toLowerCase();
+    const hasWake = low.includes(wake);
+    if (continuousRef.current) {
+      // Hands-free: ignore ambient speech until the wake word, then keep a follow-up window open
+      if (!armedRef.current && !hasWake) return;
+      let t = transcript;
+      if (hasWake) t = t.replace(new RegExp(wake, "ig"), "").replace(/^[\s,.:!?-]+/, "").trim();
+      if (!t) { arm(); return; } // user only said the wake word → open the listening window
+      send(t);
+    } else {
+      const t = transcript.trim();
+      if (t) send(t);
     }
-    send(t);
-  }, [config, send]);
+  }, [config, send, arm]);
 
   const startListening = useCallback(() => {
     if (!supported) return;
@@ -96,6 +112,7 @@ export function useAssistant(config) {
     const next = !continuousRef.current;
     continuousRef.current = next;
     setContinuous(next);
+    armedRef.current = false; setArmed(false); clearTimeout(armTimerRef.current);
     if (next) startListening();
     else { stop(); stopSpeaking(); setState("idle"); }
   }, [startListening, stop]);
@@ -103,6 +120,7 @@ export function useAssistant(config) {
   const stopAll = useCallback(() => {
     continuousRef.current = false;
     setContinuous(false);
+    armedRef.current = false; setArmed(false); clearTimeout(armTimerRef.current);
     stop();
     stopSpeaking();
     busyRef.current = false;
@@ -115,7 +133,7 @@ export function useAssistant(config) {
   }, [sessionId]);
 
   return {
-    sessionId, messages, state, currentTool, interim, listening, continuous,
+    sessionId, messages, state, currentTool, interim, listening, continuous, armed,
     supported, send, toggleContinuous, startListening, stopAll, clear, setMessages,
   };
 }

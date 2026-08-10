@@ -22,6 +22,7 @@ export const api = {
   devices: () => client.get("/devices").then((r) => r.data),
   applications: () => client.get("/applications").then((r) => r.data),
   cyberTools: () => client.get("/cyber/tools").then((r) => r.data),
+  projects: () => client.get("/projects").then((r) => r.data),
   gmailStatus: () => client.get("/gmail/status").then((r) => r.data),
   gmailRecent: () => client.get("/gmail/recent").then((r) => r.data),
   whatsapp: () => client.get("/whatsapp/recent").then((r) => r.data),

@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bella Napoli - Restaurant Italien</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            color: #f5f5f5;
+            background-color: #0a0a0a;
+            line-height: 1.6;
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem 0;
+            border-bottom: 2px solid #d4af37;
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #d4af37;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: #f5f5f5;
+            text-decoration: none;
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+        }
+
+        nav a:hover {
+            color: #d4af37;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
+                        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080"><rect fill="%23000" width="1920" height="1080"/><circle cx="960" cy="540" r="400" fill="%23d4af37" opacity="0.1"/><text x="960" y="540" font-size="200" fill="%23d4af37" opacity="0.05" text-anchor="middle" font-family="serif">🍝</text></svg>');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero-content {
+            animation: fadeInUp 1.5s ease;
+        }
+
+        .hero h1 {
+            font-size: 5rem;
+            color: #d4af37;
+            margin-bottom: 1rem;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8);
+            letter-spacing: 5px;
+        }
+
+        .hero p {
+            font-size: 1.5rem;
+            color: #f5f5f5;
+            margin-bottom: 2rem;
+            font-style: italic;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 1rem 3rem;
+            background: #d4af37;
+            color: #0a0a0a;
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .cta-button:hover {
+            background: #f5f5f5;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.5);
+        }
+
+        /* Menu Section */
+        .menu {
+            padding: 6rem 2rem;
+            background: #0a0a0a;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 3rem;
+            color: #d4af37;
+            margin-bottom: 3rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 3px;
+            background: #d4af37;
+            margin: 1rem auto;
+        }
+
+        .menu-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 3rem;
+        }
+
+        .menu-item {
+            background: #1a1a1a;
+            padding: 2rem;
+            border-radius: 15px;
+            border: 2px solid #d4af37;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .menu-item::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .menu-item:hover::before {
+            opacity: 1;
+        }
+
+        .menu-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(212, 175, 55, 0.3);
+        }
+
+        .menu-item h3 {
+            font-size: 2rem;
+            color: #d4af37;
+            margin-bottom: 1rem;
+        }
+
+        .menu-item .price {
+            font-size: 1.5rem;
+            color: #d4af37;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .menu-item p {
+            font-size: 1.1rem;
+            color: #c0c0c0;
+            line-height: 1.8;
+        }
+
+        /* Contact Section */
+        .contact {
+            padding: 6rem 2rem;
+            background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+        }
+
+        .contact-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .contact-info {
+            background: #1a1a1a;
+            padding: 3rem;
+            border-radius: 15px;
+            border: 2px solid #d4af37;
+            text-align: center;
+        }
+
+        .contact-info h3 {
+            font-size: 1.8rem;
+            color: #d4af37;
+            margin-bottom: 2rem;
+        }
+
+        .contact-item {
+            margin: 1.5rem 0;
+            font-size: 1.2rem;
+            color: #f5f5f5;
+        }
+
+        .contact-item strong {
+            color: #d4af37;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Footer */
+        footer {
+            background: #000;
+            padding: 2rem;
+            text-align: center;
+            color: #d4af37;
+            border-top: 2px solid #d4af37;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 3rem;
+            }
+
+            .hero p {
+                font-size: 1.2rem;
+            }
+
+            nav ul {
+                gap: 1rem;
+            }
+
+            .logo {
+                font-size: 1.5rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .menu-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <nav>
+            <div class="logo">Bella Napoli</div>
+            <ul>
+                <li><a href="#hero">Accueil</a></li>
+                <li><a href="#menu">Menu</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="hero" class="hero">
+        <div class="hero-content">
+            <h1>Bella Napoli</h1>
+            <p>L'authentique saveur de l'Italie dans votre assiette</p>
+            <a href="#menu" class="cta-button">Découvrir notre carte</a>
+        </div>
+    </section>
+
+    <!-- Menu Section -->
+    <section id="menu" class="menu">
+        <h2 class="section-title">Notre Menu</h2>
+        <div class="menu-container">
+            <div class="menu-item">
+                <h3>🍝 Pasta Carbonara</h3>
+                <div class="price">18€</div>
+                <p>Pâtes fraîches maison, guanciale croustillant, œuf fermier, pecorino romano et poivre noir fraîchement moulu. Une recette traditionnelle romaine authentique.</p>
+            </div>
+
+            <div class="menu-item">
+                <h3>🍕 Pizza Margherita</h3>
+                <div class="price">15€</div>
+                <p>Pâte artisanale cuite au feu de bois, sauce tomate San Marzano, mozzarella di bufala, basilic frais et huile d'olive extra vierge. La reine des pizzas napolitaines.</p>
+            </div>
+
+            <div class="menu-item">
+                <h3>🍰 Tiramisu</h3>
+                <div class="price">9€</div>
+                <p>Biscuits à la cuillère imbibés de café italien, crème mascarpone onctueuse et cacao amer. Le dessert emblématique préparé selon la recette ancestrale.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact">
+        <h2 class="section-title">Contact</h2>
+        <div class="contact-container">
+            <div class="contact-info">
+                <h3>Venez nous rendre visite</h3>
+                <div class="contact-item">
+                    <strong>📍 Adresse</strong>
+                    15 Rue de la Dolce Vita<br>
+                    75001 Paris, France
+                </div>
+                <div class="contact-item">
+                    <strong>📞 Téléphone</strong>
+                    +33 1 42 00 00 00
+                </div>
+                <div class="contact-item">
+                    <strong>📧 Email</strong>
+                    contact@bellanapoli.fr
+                </div>
+                <div class="contact-item">
+                    <strong>🕐 Horaires</strong>
+                    Mardi - Dimanche : 12h - 14h30 & 19h - 23h<br>
+                    Fermé le lundi
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 Bella Napoli - Tous droits réservés | Fait avec ❤️ et passion</p>
+    </footer>
+</body>
+</html>
